@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import {htmlSafe} from '@ember/string';
+import {htmlSafe} from '@ember/template';
 import {inject as service} from '@ember/service';
 import {task} from 'ember-concurrency-decorators';
 
@@ -23,11 +23,11 @@ export default class GhLaunchWizardFinaliseComponent extends Component {
             const yearlyPrice = updatedProduct.get('stripePrices').find(d => d.nickname === 'Yearly');
             const portalPlans = this.settings.get('portalPlans') || [];
             let allowedPlans = [...portalPlans];
-            if (data.isMonthlyChecked && monthlyPrice) {
+            if (data.isMonthlyChecked && monthlyPrice && !allowedPlans.includes(monthlyPrice.id)) {
                 allowedPlans.push(monthlyPrice.id);
             }
 
-            if (data.isYearlyChecked && yearlyPrice) {
+            if (data.isYearlyChecked && yearlyPrice && !allowedPlans.includes(yearlyPrice.id)) {
                 allowedPlans.push(yearlyPrice.id);
             }
             this.settings.set('portalPlans', allowedPlans);

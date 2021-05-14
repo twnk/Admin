@@ -1,0 +1,22 @@
+<div class="mb4">
+    <div class="gh-expandable-header">
+        <div>
+            <h4 class="gh-expandable-title">Subscription access</h4>
+            <p class="gh-expandable-description">Who should be able to subscribe to your site?</p>
+        </div>
+    </div>
+
+    <PowerSelect
+        @options={{this.options}}
+        @selected={{this.selectedOption}}
+        @onChange={{this.setSignupAccess}}
+        as |option|
+    >
+        <div class="flex ma2">
+            <div class="gh-radio-label">
+                {{option.name}}<br>
+                <div class="gh-radio-desc">{{option.description}}</div>
+            </div>
+        </div>
+    </PowerSelect>
+</div>
