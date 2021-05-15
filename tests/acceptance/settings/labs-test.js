@@ -303,6 +303,119 @@ describe('Acceptance: Settings - Labs', function () {
             let iframe = document.querySelector('#iframeDownload');
             expect(iframe.getAttribute('src')).to.have.string('/settings/routes/yaml/');
         });
+
+        it('can upload/download headers.yaml', async function () {
+            await visit('/settings/labs');
+
+            // successful upload
+            this.server.post('/headers/upload', {}, 200);
+
+            await fileUpload(
+                '[data-test-file-input="headers"] input',
+                ['test'],
+                {name: 'headers.yaml', type: 'application/x-yaml'}
+            );
+
+            // TODO: tests for the temporary success/failure state have been
+            // disabled because they were randomly failing
+
+            // this should be half-way through button reset timeout
+            // await timeout(50);
+            //
+            // // shows success button
+            // let button = find('[data-test-button="upload-routes"]');
+            // expect(button.length, 'no of success buttons').to.equal(1);
+            // expect(
+            //     button.hasClass('gh-btn-green'),
+            //     'success button is green'
+            // ).to.be.true;
+            // expect(
+            //     button.text().trim(),
+            //     'success button text'
+            // ).to.have.string('Uploaded');
+            //
+            // await wait();
+
+            // returned to normal button
+            let buttons = findAll('[data-test-button="upload-headers"]');
+            expect(buttons.length, 'no of post-success buttons').to.equal(1);
+            expect(
+                buttons[0],
+                'routes post-success button doesn\'t have success class'
+            ).to.not.have.class('gh-btn-green');
+            expect(
+                buttons[0].textContent,
+                'headers post-success button text'
+            ).to.have.string('Upload headers YAML');
+
+            // failed upload
+            this.server.post('/settings/headers/yaml/', {
+                errors: [{
+                    type: 'BadRequestError',
+                    message: 'Test failure message'
+                }]
+            }, 400);
+
+            await fileUpload(
+                '[data-test-file-input="headers"] input',
+                ['test'],
+                {name: 'headers-bad.yaml', type: 'application/x-yaml'}
+            );
+
+            // TODO: tests for the temporary success/failure state have been
+            // disabled because they were randomly failing
+
+            // this should be half-way through button reset timeout
+            // await timeout(50);
+            //
+            // shows failure button
+            // button = find('[data-test-button="upload-headers"]');
+            // expect(button.length, 'no of failure buttons').to.equal(1);
+            // expect(
+            //     button.hasClass('gh-btn-red'),
+            //     'failure button is red'
+            // ).to.be.true;
+            // expect(
+            //     button.text().trim(),
+            //     'failure button text'
+            // ).to.have.string('Upload Failed');
+            //
+            // await wait();
+
+            // shows error message
+            expect(
+                find('[data-test-error="headers"]').textContent,
+                'headers upload error text'
+            ).to.have.string('Test failure message');
+
+            // returned to normal button
+            buttons = findAll('[data-test-button="upload-headers"]');
+            expect(buttons.length, 'no of post-failure buttons').to.equal(1);
+            expect(
+                buttons[0],
+                'headers post-failure button doesn\'t have failure class'
+            ).to.not.have.class('gh-btn-red');
+            expect(
+                buttons[0].textContent,
+                'headers post-failure button text'
+            ).to.have.string('Upload headers YAML');
+
+            // successful upload clears error
+            this.server.post('/settings/headers/yaml/', {}, 200);
+            await fileUpload(
+                '[data-test-file-input="headers"] input',
+                ['test'],
+                {name: 'headers-good.yaml', type: 'application/x-yaml'}
+            );
+
+            expect(find('[data-test-error="headers"]')).to.not.exist;
+
+            // can download redirects.json
+            await click('[data-test-link="download-headers"]');
+
+            let iframe = document.querySelector('#iframeDownload');
+            expect(iframe.getAttribute('src')).to.have.string('settings/headers/yaml/');
+        });
     });
 
     describe('When logged in as Owner', function () {
